@@ -1,13 +1,14 @@
 FROM golang:1.20-alpine
 
-WORKDIR /backend
+WORKDIR /backend 
 
 COPY . .
 
+RUN apk add --no-cache gcc musl-dev
+
 RUN go mod download && go mod verify
-RUN go build -o application ./cmd/url-sortener/main.go
-RUN chmod +x application    # Add this line to make the binary executable
+RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o /bin/main ./cmd/url-sortener/main.go 
 
 EXPOSE 8080
 
-CMD [ "./application" ]
+CMD ["main"]

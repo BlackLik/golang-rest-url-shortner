@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./:/backend
+      - ./storage:/database
 
 volumes:
-  backend:
+  database:
