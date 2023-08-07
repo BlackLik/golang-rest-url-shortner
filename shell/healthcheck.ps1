@@ -1,2 +1,2 @@
-vegeta attack -targets="targets.txt" -duration=30s -rate=1000/s -output="targets.gob"
-vegeta report "targets.gob"
+vegeta attack -targets="healthcheck.txt" -duration=30s -rate=1000/s -output="healthcheck.gob"
+vegeta report "healthcheck.gob"
