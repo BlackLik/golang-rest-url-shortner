@@ -22,3 +22,5 @@ go.work
 
 storage/*.db
 config/local.yaml
+
+*.gob
