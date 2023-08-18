@@ -1,0 +1,94 @@
+basePath: /
+definitions:
+  urls.CreateURLBody:
+    properties:
+      original_url:
+        type: string
+    type: object
+  urls.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  urls.URLResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      original_url:
+        type: string
+      short_url:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: info@mangi.org
+    name: API Support
+  description: This is a sample swagger for Fiber
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit/
+  termsOfService: http://swagger.io/terms/
+  title: Fiber Example API
+  version: "1.0"
+paths:
+  /api/urls/:
+    post:
+      consumes:
+      - application/json
+      description: Создает URL с предоставленным исходным URL.
+      parameters:
+      - description: Тело запроса
+        in: body
+        name: c
+        required: true
+        schema:
+          $ref: '#/definitions/urls.CreateURLBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/urls.URLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/urls.ErrorResponse'
+      summary: Создать URL
+      tags:
+      - Параметры URL
+  /api/urls/{shorturl}:
+    get:
+      consumes:
+      - application/json
+      description: Обрабатывает HTTP-запрос для получения параметров URL.
+      parameters:
+      - description: Короткий URL
+        in: path
+        name: shorturl
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/urls.URLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/urls.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/urls.ErrorResponse'
+      summary: Получить параметры URL
+      tags:
+      - Параметры URL
+swagger: "2.0"

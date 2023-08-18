@@ -24,3 +24,5 @@ storage/*.db
 config/local.yaml
 
 *.gob
+
+/tmp/*.db

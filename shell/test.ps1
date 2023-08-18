@@ -1,0 +1,1 @@
+go test urlshort.ru/m/utils --timeout=30s

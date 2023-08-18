@@ -1,1 +1,1 @@
-GET http://localhost:3000/
+GET http://localhost:8080/api/urls/10a02990288379b285bc0379e5b3da0d
