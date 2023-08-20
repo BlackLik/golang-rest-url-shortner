@@ -32,13 +32,16 @@ func main() {
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	// TODO init start fiber
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		Prefork:      true,
+		ServerHeader: "Fiber",
+	})
 	app.Use(cors.New())
 	api.Register(app)
 
 	app.Get("/docs/*", swagger.New(swagger.Config{
 		Title:        "Swagger Example API",
-		DocExpansion: "full",
+		DocExpansion: "list",
 	}))
 
 	slog.Error("Error", app.Listen(":8080"))

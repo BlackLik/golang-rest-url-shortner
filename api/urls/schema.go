@@ -14,3 +14,7 @@ type URLResponse struct {
 	ShortURL    string    `json:"short_url"`
 	CreatedAt   time.Time `json:"created_at,omitempty"`
 }
+
+type ShortURLBody struct {
+	OriginalURL string `json:"original_url"`
+}

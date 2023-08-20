@@ -6,6 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	ROLE_USER  = "user"
+	ROLE_ADMIN = "admin"
+)
+
 type URL struct {
 	gorm.Model
 	OriginalURL string    `gorm:"uniqueIndex"`
@@ -17,6 +22,6 @@ type User struct {
 	gorm.Model
 	Email        string `gorm:"uniqueIndex; not null"`
 	Password     string `gorm:"not null"`
-	RefreshToken string
+	RefreshToken string `gorm:"index"`
 	Role         string `gorm:"default:'user'"`
 }

@@ -24,7 +24,7 @@ definitions:
       password:
         type: string
     type: object
-  schema.ErrorResponse:
+  schema.Response:
     properties:
       code:
         type: integer
@@ -32,6 +32,11 @@ definitions:
         type: string
     type: object
   urls.CreateURLBody:
+    properties:
+      original_url:
+        type: string
+    type: object
+  urls.ShortURLBody:
     properties:
       original_url:
         type: string
@@ -82,12 +87,12 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
       summary: Check token
       tags:
-      - User
+      - JWT
   /api/jwt/delete:
-    post:
+    delete:
       consumes:
       - application/json
       description: Deletes a user
@@ -107,14 +112,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
       summary: Delete user
       tags:
-      - User
+      - JWT
   /api/jwt/login:
     post:
       consumes:
@@ -137,10 +142,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/schema.Response'
       summary: User login
       tags:
-      - User
+      - JWT
   /api/jwt/logout:
     get:
       consumes:
@@ -162,10 +171,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/schema.Response'
       summary: User logout
       tags:
-      - User
+      - JWT
   /api/jwt/refresh:
     get:
       consumes:
@@ -187,11 +200,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/schema.Response'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
       summary: Refresh JWT token
       tags:
       - JWT
@@ -217,10 +234,10 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
       summary: Register user
       tags:
-      - User
+      - JWT
   /api/urls/:
     post:
       consumes:
@@ -243,11 +260,48 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
       summary: Создать URL
       tags:
       - Параметры URL
   /api/urls/{shorturl}:
+    delete:
+      consumes:
+      - application/json
+      description: Удалить URL с предоставленным коротким URL.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Короткий URL
+        in: path
+        name: shorturl
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/urls.URLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schema.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/schema.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schema.Response'
+      summary: Удалить URL
+      tags:
+      - Параметры URL
     get:
       consumes:
       - application/json
@@ -268,12 +322,55 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/schema.ErrorResponse'
+            $ref: '#/definitions/schema.Response'
       summary: Получить параметры URL
+      tags:
+      - Параметры URL
+    patch:
+      consumes:
+      - application/json
+      description: Обновить URL с предоставленным коротким и существующим URL.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Короткий URL
+        in: path
+        name: shorturl
+        required: true
+        type: string
+      - description: Original URL
+        in: body
+        name: bodyJson
+        required: true
+        schema:
+          $ref: '#/definitions/urls.ShortURLBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/urls.URLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schema.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/schema.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schema.Response'
+      summary: Обновить URL
       tags:
       - Параметры URL
 swagger: "2.0"

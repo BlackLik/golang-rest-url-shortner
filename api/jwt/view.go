@@ -17,8 +17,9 @@ import (
 // @Produce json
 // @Param Authorization header string true "Bearer {refresh_token}"
 // @Success 200 {object} AccessToken
-// @Failure 400 {object} schema.ErrorResponse
-// @Failure 404 {object} schema.ErrorResponse
+// @Failure 400 {object} schema.Response
+// @Failure 401 {object} schema.Response
+// @Failure 404 {object} schema.Response
 // @Router /api/jwt/refresh [get]
 //
 // Parameters:
@@ -34,7 +35,13 @@ func refreshHandler(c *fiber.Ctx) error {
 	}
 
 	tokenSplit := strings.Split(token, ".")
-	payloadRefresh, err := GetPayloadRefresh(tokenSplit[1])
+	decodeToken, err := utils.Base64Decode([]byte(tokenSplit[1]))
+	if err != nil {
+		utils.LoggerRequestUser(c, LOGGER_HANDLER, 400)
+		return c.Status(400).JSON(schema.GetError400Response())
+	}
+	payloadRefresh, err := GetPayloadRefresh(decodeToken)
+
 	if err != nil {
 		utils.LoggerRequestUser(c, LOGGER_HANDLER, 400)
 		return c.Status(400).JSON(schema.GetError400Response())
@@ -48,8 +55,8 @@ func refreshHandler(c *fiber.Ctx) error {
 			utils.LoggerRequestUser(c, LOGGER_HANDLER, 404)
 			return c.Status(404).JSON(schema.GetError404Response())
 		}
-		utils.LoggerRequestUser(c, LOGGER_HANDLER, 400)
-		return c.Status(400).JSON(schema.GetError400Response())
+		utils.LoggerRequestUser(c, LOGGER_HANDLER, 401)
+		return c.Status(401).JSON(schema.GetError401Response())
 	}
 
 	accessToken, err := GenerateJWTAccess(int(user.ID), user.Email, user.Role)
@@ -65,12 +72,12 @@ func refreshHandler(c *fiber.Ctx) error {
 
 // @Summary Register user
 // @Description Registers a new user
-// @Tags User
+// @Tags JWT
 // @Accept json
 // @Produce json
 // @Param requestBody body UserJSON true "User object"
 // @Success 200 {object} RefreshAndAccessTokens
-// @Failure 400 {object} schema.ErrorResponse
+// @Failure 400 {object} schema.Response
 // @Router /api/jwt/register [post]
 //
 // Parameters:
@@ -119,12 +126,13 @@ func registerHandler(c *fiber.Ctx) error {
 
 // @Summary User login
 // @Description Logs in a user
-// @Tags User
+// @Tags JWT
 // @Accept json
 // @Produce json
 // @Param requestBody body UserJSON true "User object"
 // @Success 200 {object} RefreshAndAccessTokens
-// @Failure 400 {object} schema.ErrorResponse
+// @Failure 400 {object} schema.Response
+// @Failure 401 {object} schema.Response
 // @Router /api/jwt/login [post]
 //
 // Parameters:
@@ -141,8 +149,8 @@ func loginHandler(c *fiber.Ctx) error {
 	var user models.User
 	passwordDB := utils.GenerateShortHashSHA256(inputUserJson.Email + inputUserJson.Password)
 	if err := localDb.Where("email = ? AND password = ?", inputUserJson.Email, passwordDB).First(&user).Error; err != nil {
-		utils.LoggerRequestUser(c, LOGGER_HANDLER, 400)
-		return c.Status(400).JSON(schema.GetError400Response())
+		utils.LoggerRequestUser(c, LOGGER_HANDLER, 401)
+		return c.Status(401).JSON(schema.GetError401Response())
 	}
 	refreshToken, err := GenerateJWTRefresh(int(user.ID))
 	if err != nil {
@@ -167,12 +175,13 @@ func loginHandler(c *fiber.Ctx) error {
 
 // @Summary User logout
 // @Description Logs out a user
-// @Tags User
+// @Tags JWT
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} RefreshAndAccessTokens
-// @Failure 400 {object} schema.ErrorResponse
+// @Failure 400 {object} schema.Response
+// @Failure 401 {object} schema.Response
 // @Router /api/jwt/logout [get]
 //
 // Parameters:
@@ -188,7 +197,12 @@ func logoutHandler(c *fiber.Ctx) error {
 	}
 
 	tokenSplit := strings.Split(token, ".")
-	payloadRefresh, err := GetPayloadRefresh(tokenSplit[1])
+	decodeToken, err := utils.Base64Decode([]byte(tokenSplit[1]))
+	if err != nil {
+		utils.LoggerRequestUser(c, LOGGER_HANDLER, 400)
+		return c.Status(400).JSON(schema.GetError400Response())
+	}
+	payloadRefresh, err := GetPayloadRefresh(decodeToken)
 	if err != nil {
 		utils.LoggerRequestUser(c, LOGGER_HANDLER, 400)
 		return c.Status(400).JSON(schema.GetError400Response())
@@ -197,7 +211,7 @@ func logoutHandler(c *fiber.Ctx) error {
 	var user models.User
 	result := localDb.Where("id = ? AND refresh_token = ?", payloadRefresh.UserID, utils.GenerateShortHashSHA256(token)).First(&user)
 
-	err = checkErrorQueryDB(c, result)
+	err = CheckErrorQueryDB(c, result)
 	if err != nil {
 		return err
 	}
@@ -214,12 +228,12 @@ func logoutHandler(c *fiber.Ctx) error {
 
 // @Summary Check token
 // @Description Checks the validity of a token
-// @Tags User
+// @Tags JWT
 // @Accept json
 // @Produce json
 // @Param requestBody body CheckTokenJSON true "Token object"
 // @Success 200 {object} string
-// @Failure 400 {object} schema.ErrorResponse
+// @Failure 400 {object} schema.Response
 // @Router /api/jwt/check [post]
 //
 // Parameters:
@@ -250,14 +264,15 @@ func checkHandler(c *fiber.Ctx) error {
 
 // @Summary Delete user
 // @Description Deletes a user
-// @Tags User
+// @Tags JWT
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} string
-// @Failure 400 {object} schema.ErrorResponse
-// @Failure 404 {object} schema.ErrorResponse
-// @Router /api/jwt/delete [post]
+// @Failure 400 {object} schema.Response
+// @Failure 400 {object} schema.Response
+// @Failure 404 {object} schema.Response
+// @Router /api/jwt/delete [delete]
 //
 // Parameters:
 // - c: Указатель на объект fiber.Ctx, представляющий контекст запроса.
@@ -278,8 +293,8 @@ func deleteHandler(c *fiber.Ctx) error {
 
 	token, err := ExtractTokenHandler(c)
 	if err != nil {
-		utils.LoggerRequestUser(c, LOGGER_HANDLER, 400)
-		return c.Status(400).JSON(schema.GetError400Response())
+		utils.LoggerRequestUser(c, LOGGER_HANDLER, 401)
+		return c.Status(401).JSON(schema.GetError401Response())
 	}
 
 	tokenSplit := strings.Split(token, ".")
@@ -291,7 +306,7 @@ func deleteHandler(c *fiber.Ctx) error {
 
 	var user models.User
 	result := localDb.Where("id = ?", payloadAccess.UserID, utils.GenerateShortHashSHA256(token)).First(&user)
-	err = checkErrorQueryDB(c, result)
+	err = CheckErrorQueryDB(c, result)
 	if err != nil {
 		return err
 	}
@@ -302,7 +317,7 @@ func deleteHandler(c *fiber.Ctx) error {
 	}
 
 	result = localDb.First(&user, "id = ?", body.UserId)
-	err = checkErrorQueryDB(c, result)
+	err = CheckErrorQueryDB(c, result)
 	if err != nil {
 		return err
 	}

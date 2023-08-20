@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/exp/slog"
@@ -68,4 +69,11 @@ func Base64Decode(input []byte) (string, error) {
 		return "", err
 	}
 	return string(decodedBytes), nil
+}
+
+// Conver10IntTo32String converts the given 10-based integer to a 32-based string.
+//
+// It takes an int64 as input parameter and returns a string.
+func Conver10IntTo32String(input int64) string {
+	return strconv.FormatInt(input, 32)
 }

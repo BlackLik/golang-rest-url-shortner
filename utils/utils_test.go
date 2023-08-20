@@ -143,3 +143,43 @@ func TestBase64Encode(t *testing.T) {
 		}
 	}
 }
+
+// TestConver10IntTo32String tests the Conver10IntTo32String function.
+//
+// It verifies the correctness of converting a given base-10 integer to a base-32 string.
+// The function takes in a list of test cases, each containing a name, input integer, and expected output string.
+// For each test case, the function runs a sub-test with the name and performs the conversion.
+// It compares the result with the expected output and raises an error if they don't match.
+// The function is designed to be used with the testing package and is intended for unit testing.
+func TestConver10IntTo32String(t *testing.T) {
+	tests := []struct {
+		name  string
+		input int64
+		want  string
+	}{
+		{
+			name:  "Positive integer",
+			input: 12345,
+			want:  "c1p",
+		},
+		{
+			name:  "Negative integer",
+			input: -98765,
+			want:  "-30ed",
+		},
+		{
+			name:  "Zero",
+			input: 0,
+			want:  "0",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := utils.Conver10IntTo32String(tt.input)
+			if got != tt.want {
+				t.Errorf("Conver10IntTo32String() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

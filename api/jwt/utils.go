@@ -242,6 +242,9 @@ func GetPayloadRefresh(payload string) (PayloadJWTRefresh, error) {
 	return dictonary, nil
 }
 
+// GetPayloadAccess retrieves the JWT payload and converts it into a PayloadJWTAccess struct.
+//
+// It takes a payload string as a parameter and returns a PayloadJWTAccess struct and an error.
 func GetPayloadAccess(payload string) (PayloadJWTAccess, error) {
 	if payload == "" {
 		return PayloadJWTAccess{}, errors.New("invalid payload")
@@ -268,6 +271,11 @@ func ExtractTokenHandler(c *fiber.Ctx) (string, error) {
 	return GetExtractTokenHandler(c.GetReqHeaders()["Authorization"])
 }
 
+// checkErrorTokenHandler is a function that takes a token string and an error as parameters.
+// It checks if the error is not nil and returns an empty string and the error if it is.
+// Then it checks if the token is valid using the CheckToken function.
+// If the token is not valid, it returns an empty string and an error with the message "invalid token".
+// If the token is valid, it returns the token and nil as the error.
 func checkErrorTokenHandler(token string, err error) (string, error) {
 	if err != nil {
 		return "", err
@@ -278,19 +286,63 @@ func checkErrorTokenHandler(token string, err error) (string, error) {
 	return token, nil
 }
 
+// GetExtractTokenHandler returns the extracted token from the given authorization string.
+//
+// It takes the authorization string as a parameter and returns the extracted token and any error encountered.
 func GetExtractTokenHandler(authorization string) (string, error) {
 	token, err := ExtractToken(authorization)
 	return checkErrorTokenHandler(token, err)
 }
 
-func checkErrorQueryDB(c *fiber.Ctx, result *gorm.DB) error {
+// CheckErrorQueryDB checks if there is an error in the result of a database query.
+//
+// Parameters:
+// - c: The fiber.Ctx object representing the HTTP context.
+// - result: The *gorm.DB object representing the result of the query.
+//
+// Returns:
+// - error: An error object if there is an error in the query result, or nil if there is no error.
+func CheckErrorQueryDB(c *fiber.Ctx, result *gorm.DB) error {
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			utils.LoggerRequestUser(c, LOGGER_HANDLER, 404)
 			return c.Status(404).JSON(schema.GetError404Response())
 		}
-		utils.LoggerRequestUser(c, LOGGER_HANDLER, 400)
-		return c.Status(400).JSON(schema.GetError400Response())
+		utils.LoggerRequestUser(c, LOGGER_HANDLER, 401)
+		return c.Status(401).JSON(schema.GetError401Response())
 	}
 	return nil
+}
+
+// GetPayloadHandlerAccess retrieves the payload from a token based on its type.
+//
+// It takes in two parameters:
+// - token (string): the token to extract the payload from.
+// - typeToken (string): the type of the token (either "access" or "refresh").
+//
+// It returns two values:
+// - any: the extracted payload from the token.
+// - error: an error if any occurred during the extraction process.
+func GetPayloadHandlerAccess(token string) (PayloadJWTAccess, error) {
+
+	if token == "" {
+		return PayloadJWTAccess{}, errors.New("token is empty")
+	}
+
+	tokenSplit := strings.Split(token, ".")
+
+	if len(tokenSplit) != 3 {
+		return PayloadJWTAccess{}, errors.New("invalid token")
+	}
+
+	decodeToken, err := utils.Base64Decode([]byte(tokenSplit[1]))
+	if err != nil {
+		return PayloadJWTAccess{}, err
+	}
+
+	payload, err := GetPayloadAccess(decodeToken)
+	if err != nil {
+		return PayloadJWTAccess{}, err
+	}
+	return payload, nil
 }

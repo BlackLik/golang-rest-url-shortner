@@ -34,7 +34,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "JWT"
                 ],
                 "summary": "Check token",
                 "parameters": [
@@ -58,14 +58,14 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
                         }
                     }
                 }
             }
         },
         "/api/jwt/delete": {
-            "post": {
+            "delete": {
                 "description": "Deletes a user",
                 "consumes": [
                     "application/json"
@@ -74,7 +74,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "JWT"
                 ],
                 "summary": "Delete user",
                 "parameters": [
@@ -96,13 +96,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
                         }
                     }
                 }
@@ -118,7 +118,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "JWT"
                 ],
                 "summary": "User login",
                 "parameters": [
@@ -142,7 +142,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Response"
                         }
                     }
                 }
@@ -158,7 +164,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "JWT"
                 ],
                 "summary": "User logout",
                 "parameters": [
@@ -180,7 +186,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Response"
                         }
                     }
                 }
@@ -218,13 +230,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
                         }
                     }
                 }
@@ -240,7 +258,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "JWT"
                 ],
                 "summary": "Register user",
                 "parameters": [
@@ -264,7 +282,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
                         }
                     }
                 }
@@ -304,7 +322,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
                         }
                     }
                 }
@@ -342,13 +360,132 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/schema.ErrorResponse"
+                            "$ref": "#/definitions/schema.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удалить URL с предоставленным коротким URL.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Параметры URL"
+                ],
+                "summary": "Удалить URL",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Короткий URL",
+                        "name": "shorturl",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/urls.URLResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Обновить URL с предоставленным коротким и существующим URL.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Параметры URL"
+                ],
+                "summary": "Обновить URL",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Короткий URL",
+                        "name": "shorturl",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Original URL",
+                        "name": "bodyJson",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/urls.ShortURLBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/urls.URLResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/schema.Response"
                         }
                     }
                 }
@@ -394,7 +531,7 @@ const docTemplate = `{
                 }
             }
         },
-        "schema.ErrorResponse": {
+        "schema.Response": {
             "type": "object",
             "properties": {
                 "code": {
@@ -406,6 +543,14 @@ const docTemplate = `{
             }
         },
         "urls.CreateURLBody": {
+            "type": "object",
+            "properties": {
+                "original_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "urls.ShortURLBody": {
             "type": "object",
             "properties": {
                 "original_url": {

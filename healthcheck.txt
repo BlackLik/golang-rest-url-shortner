@@ -1,1 +1,4 @@
-GET http://localhost:8080/api/urls/10a02990288379b285bc0379e5b3da0d
+GET http://localhost:8080/api/urls/1
+GET http://localhost:8080/api/urls/2
+GET http://localhost:8080/api/urls/3
+GET http://localhost:8080/api/urls/4

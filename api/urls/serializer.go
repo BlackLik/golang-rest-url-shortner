@@ -24,8 +24,8 @@ func GetURLResponse(url models.URL) URLResponse {
 // - err: the error that caused the response.
 // Return:
 // - ErrorResponse: the error response with the 404 status code.
-func GetError404Response() schema.ErrorResponse {
-	return schema.ErrorResponse{
+func GetError404Response() schema.Response {
+	return schema.Response{
 		Code:    404,
 		Message: "Not Found",
 	}
@@ -37,8 +37,8 @@ func GetError404Response() schema.ErrorResponse {
 // - err: the error that will be used as the message for the ErrorResponse.
 // Return type(s):
 // - ErrorResponse: the error response object with code 400 and the error message.
-func GetError400Response() schema.ErrorResponse {
-	return schema.ErrorResponse{
+func GetError400Response() schema.Response {
+	return schema.Response{
 		Code:    400,
 		Message: "Bad Request",
 	}
