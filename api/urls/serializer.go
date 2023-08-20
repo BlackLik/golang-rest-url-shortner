@@ -1,6 +1,10 @@
 package urls
 
-import "urlshort.ru/m/models"
+import (
+	"urlshort.ru/m/models"
+
+	"urlshort.ru/m/schema"
+)
 
 // GetURLResponse returns a URLResponse struct based on the provided URL.
 //
@@ -20,8 +24,8 @@ func GetURLResponse(url models.URL) URLResponse {
 // - err: the error that caused the response.
 // Return:
 // - ErrorResponse: the error response with the 404 status code.
-func GetError404Response() ErrorResponse {
-	return ErrorResponse{
+func GetError404Response() schema.ErrorResponse {
+	return schema.ErrorResponse{
 		Code:    404,
 		Message: "Not Found",
 	}
@@ -33,8 +37,8 @@ func GetError404Response() ErrorResponse {
 // - err: the error that will be used as the message for the ErrorResponse.
 // Return type(s):
 // - ErrorResponse: the error response object with code 400 and the error message.
-func GetError400Response() ErrorResponse {
-	return ErrorResponse{
+func GetError400Response() schema.ErrorResponse {
+	return schema.ErrorResponse{
 		Code:    400,
 		Message: "Bad Request",
 	}

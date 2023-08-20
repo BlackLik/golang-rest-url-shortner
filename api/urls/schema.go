@@ -1,14 +1,11 @@
 package urls
 
-import "time"
+import (
+	"time"
+)
 
 type CreateURLBody struct {
 	OriginalURL string `json:"original_url"`
-}
-
-type ErrorResponse struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
 }
 
 type URLResponse struct {

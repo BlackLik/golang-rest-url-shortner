@@ -63,5 +63,5 @@ func InitDB(DB_NAME string) *gorm.DB {
 //
 // There is no return type for this function.
 func Migrate(db *gorm.DB) {
-	db.AutoMigrate(&URL{})
+	db.AutoMigrate(&URL{}, &User{})
 }

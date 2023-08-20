@@ -44,8 +44,8 @@ func Register(api fiber.Router) {
 // @Produce json
 // @Param shorturl path string true "Короткий URL"
 // @Success 200 {object} URLResponse
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
+// @Failure 400 {object} schema.ErrorResponse
+// @Failure 404 {object} schema.ErrorResponse
 // @Router /api/urls/{shorturl} [get]
 //
 // Parameters:
@@ -54,16 +54,19 @@ func Register(api fiber.Router) {
 func getURLWithShort(c *fiber.Ctx) error {
 	c.Accepts("application/json")
 	// TODO Logger handler ip address response url path
-	utils.LoggerRequestUser(c, loggerHandler)
 	var url models.URL
 	result := localDb.First(&url, "short_url = ?", c.Params("shorturl"))
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+
+			utils.LoggerRequestUser(c, loggerHandler, 404)
 			return c.Status(404).JSON(GetError404Response())
 		}
 		slog.Debug(loggerHandler, result.Error)
+		utils.LoggerRequestUser(c, loggerHandler, 400)
 		return c.Status(400).JSON(GetError400Response())
 	}
+	utils.LoggerRequestUser(c, loggerHandler, 200)
 	return c.JSON(GetURLResponse(url))
 }
 
@@ -76,7 +79,7 @@ func getURLWithShort(c *fiber.Ctx) error {
 // @Produce json
 // @Param c body CreateURLBody true "Тело запроса"
 // @Success 200 {object} URLResponse
-// @Failure 400 {object} ErrorResponse
+// @Failure 400 {object} schema.ErrorResponse
 // @Router /api/urls/ [post]
 //
 // Parameters:
@@ -85,17 +88,14 @@ func getURLWithShort(c *fiber.Ctx) error {
 func createURLWithOriginal(c *fiber.Ctx) error {
 	c.Accepts("application/json")
 	c.AcceptsCharsets("UTF-8", "UTF-16")
-	utils.LoggerRequestUser(c, loggerHandler)
-
 	inputJson := new(CreateURLBody)
-
 	if err := c.BodyParser(inputJson); err != nil {
+		utils.LoggerRequestUser(c, loggerHandler, 400)
 		return c.Status(400).JSON(GetError400Response())
 	}
 
 	var url models.URL
-
-	newShortUrl := utils.GenerateShortHash(inputJson.OriginalURL)
+	newShortUrl := utils.GenerateShortHashMD5(inputJson.OriginalURL)
 	url.OriginalURL = inputJson.OriginalURL
 	url.ShortURL = newShortUrl
 	url.CreatedAt = time.Now()
@@ -104,11 +104,14 @@ func createURLWithOriginal(c *fiber.Ctx) error {
 	if result.Error != nil {
 		if strings.Contains(result.Error.Error(), "UNIQUE constraint failed") {
 			localDb.First(&url, "original_url = ?", inputJson.OriginalURL)
+			utils.LoggerRequestUser(c, loggerHandler, 200)
 			return c.JSON(GetURLResponse(url))
 		}
 		slog.Debug(loggerHandler, result.Error)
+		utils.LoggerRequestUser(c, loggerHandler, 400)
 		return c.Status(400).JSON(GetError400Response())
 	}
 	slog.Debug(loggerHandler, result)
+	utils.LoggerRequestUser(c, loggerHandler, 200)
 	return c.JSON(GetURLResponse(url))
 }

@@ -2,11 +2,8 @@ package jwt
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 	"urlshort.ru/m/models"
 )
-
-var localDb *gorm.DB
 
 // Register registers the API routes for JWT authentication.
 //
@@ -16,11 +13,11 @@ var localDb *gorm.DB
 func Register(api fiber.Router) {
 	apiJWT := api.Group("/jwt")
 	localDb = models.DATABASE
-	_ = apiJWT
-	_ = localDb
-	// TODO refresh handlers apiJWT.Post("/refresh", refresh)
-	// TODO logout handlers apiJWT.Post("/logout", logout)
-	// TODO register handlers apiJWT.Post("/register", register)
-	// TODO login handlers apiJWT.Post("/login", login)
-	// TODO check handlers apiJWT.Post("/check", check)
+
+	apiJWT.Get("/refresh", refreshHandler)
+	apiJWT.Get("/logout", logoutHandler)
+	apiJWT.Post("/register", registerHandler)
+	apiJWT.Post("/login", loginHandler)
+	apiJWT.Post("/check", checkHandler)
+	apiJWT.Delete("/delete", deleteHandler)
 }
